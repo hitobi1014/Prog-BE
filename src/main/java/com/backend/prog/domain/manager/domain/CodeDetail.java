@@ -1,6 +1,6 @@
 package com.backend.prog.domain.manager.domain;
 
-import com.backend.prog.global.common.BaseEntity;
+import com.backend.prog.shared.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -47,9 +47,17 @@ public class CodeDetail extends BaseEntity {
     }
 
     public void update(String detailName, String detailDescription, String imgUrl, Boolean isUse) {
-        if (StringUtils.hasText(detailName)) this.detailName = detailName;
-        if (StringUtils.hasText(detailDescription)) this.detailDescription = detailDescription;
-        if (StringUtils.hasText(imgUrl)) this.imgUrl = imgUrl;
-        if (isUse != null) this.isUse = isUse;
+        if (StringUtils.hasText(detailName)) {
+            this.detailName = detailName;
+        }
+        if (StringUtils.hasText(detailDescription)) {
+            this.detailDescription = detailDescription;
+        }
+        if (StringUtils.hasText(imgUrl)) {
+            this.imgUrl = imgUrl;
+        }
+        if (isUse != null) {
+            this.isUse = isUse;
+        }
     }
 }

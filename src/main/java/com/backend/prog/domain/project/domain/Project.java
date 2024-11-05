@@ -2,7 +2,7 @@ package com.backend.prog.domain.project.domain;
 
 import com.backend.prog.domain.manager.domain.CodeDetail;
 import com.backend.prog.domain.project.dto.ProjectDto;
-import com.backend.prog.global.common.DeleteEntity;
+import com.backend.prog.shared.common.DeleteEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -23,6 +23,7 @@ import java.util.Optional;
 @DynamicInsert
 @Table(name = "project")
 public class Project extends DeleteEntity implements Serializable {
+
     @Id
     @Column(name = "project_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -118,7 +119,7 @@ public class Project extends DeleteEntity implements Serializable {
     }
 
     public void addLike() {
-     this.likeCnt += 1;
+        this.likeCnt += 1;
     }
 
     public void deleteLike() {

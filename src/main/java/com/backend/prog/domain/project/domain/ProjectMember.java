@@ -2,7 +2,7 @@ package com.backend.prog.domain.project.domain;
 
 import com.backend.prog.domain.manager.domain.CodeDetail;
 import com.backend.prog.domain.member.domain.Member;
-import com.backend.prog.global.common.DeleteEntity;
+import com.backend.prog.shared.common.DeleteEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -13,6 +13,7 @@ import org.hibernate.annotations.Comment;
 @AllArgsConstructor
 @Table(name = "project_member")
 public class ProjectMember extends DeleteEntity {
+
     @EmbeddedId
     private ProjectMemberId id;
 
@@ -39,7 +40,8 @@ public class ProjectMember extends DeleteEntity {
     private CodeDetail roleCode;
 
     @Builder
-    private ProjectMember(ProjectMemberId id, Member member, Project project, CodeDetail jobCode, CodeDetail roleCode){
+    private ProjectMember(ProjectMemberId id, Member member, Project project, CodeDetail jobCode,
+        CodeDetail roleCode) {
         this.member = member;
         this.project = project;
         this.jobCode = jobCode;

@@ -1,7 +1,7 @@
 package com.backend.prog.domain.project.domain;
 
 import com.backend.prog.domain.manager.domain.CodeDetail;
-import com.backend.prog.global.common.BaseEntity;
+import com.backend.prog.shared.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -15,6 +15,7 @@ import org.hibernate.annotations.DynamicInsert;
 @DynamicInsert
 @Table(name = "project_tech")
 public class ProjectTechCode extends BaseEntity {
+
     @EmbeddedId
     private ProjectCodeDetaliId id;
 

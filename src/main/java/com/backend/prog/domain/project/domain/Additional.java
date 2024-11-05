@@ -1,11 +1,10 @@
 package com.backend.prog.domain.project.domain;
 
 import com.backend.prog.domain.project.dto.AdditionalDto;
-import com.backend.prog.global.common.DeleteEntity;
+import com.backend.prog.shared.common.DeleteEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -16,6 +15,7 @@ import java.util.Optional;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "additional")
 public class Additional extends DeleteEntity {
+
     @Id
     @Column(name = "additional_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,14 +44,14 @@ public class Additional extends DeleteEntity {
         this.project = project;
     }
 
-    public Additional(AdditionalDto.Post post, String imgUrl, Project project){
+    public Additional(AdditionalDto.Post post, String imgUrl, Project project) {
         Optional.of(post.title()).ifPresent(this::setTitle);
         Optional.of(post.url()).ifPresent(this::setUrl);
         Optional.of(imgUrl).ifPresent(this::setImgUrl);
         Optional.of(project).ifPresent(this::setProject);
     }
 
-    public void updateAdditional(AdditionalDto.Patch patch, String imgUrl){
+    public void updateAdditional(AdditionalDto.Patch patch, String imgUrl) {
         Optional.of(patch.title()).ifPresent(this::setTitle);
         Optional.of(patch.url()).ifPresent(this::setUrl);
         Optional.of(imgUrl).ifPresent(this::setImgUrl);

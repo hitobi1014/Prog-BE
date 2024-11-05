@@ -19,8 +19,8 @@ import com.backend.prog.domain.project.domain.ProjectMember;
 import com.backend.prog.domain.project.domain.ProjectMemberId;
 import com.backend.prog.domain.work.dao.WorkRepository;
 import com.backend.prog.domain.work.domain.Work;
-import com.backend.prog.global.error.CommonException;
-import com.backend.prog.global.error.ExceptionEnum;
+import com.backend.prog.shared.error.CommonException;
+import com.backend.prog.shared.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,17 +54,20 @@ public class CommentServiceImpl implements CommentService {
         //존재하는 컨텐츠인지 검증
         switch (findCodeDetail.getDetailDescription()) {
             case "프로젝트" -> {
-                Project findProject = projectRespository.findById(post.contentId()).orElseThrow(() -> new CommonException(ExceptionEnum.INVALID_CONTENT_DATA));
+                Project findProject = projectRespository.findById(post.contentId())
+                    .orElseThrow(() -> new CommonException(ExceptionEnum.INVALID_CONTENT_DATA));
                 contentId = findProject.getId();
             }
             case "게시물" -> {
-                Board findBoard = boardRepository.findById(post.contentId()).orElseThrow(() -> new CommonException(ExceptionEnum.INVALID_CONTENT_DATA));
+                Board findBoard = boardRepository.findById(post.contentId())
+                    .orElseThrow(() -> new CommonException(ExceptionEnum.INVALID_CONTENT_DATA));
                 contentId = findBoard.getId();
                 // 프로젝트에 참가한 멤버인지 거증
                 getProjectMember(findBoard.getProject(), findMember.getId());
             }
             case "업무" -> {
-                Work findWork = workRepository.findById(post.contentId()).orElseThrow(() -> new CommonException(ExceptionEnum.INVALID_CONTENT_DATA));
+                Work findWork = workRepository.findById(post.contentId())
+                    .orElseThrow(() -> new CommonException(ExceptionEnum.INVALID_CONTENT_DATA));
                 contentId = findWork.getId();
                 // 프로젝트에 참가한 멤버인지 거증
                 getProjectMember(findWork.getProject(), findMember.getId());
@@ -73,23 +76,25 @@ public class CommentServiceImpl implements CommentService {
         }
 
         Comment comment = Comment.builder()
-                .contentCode(findCodeDetail)
-                .member(findMember)
-                .parentId(post.parentId())
-                .contentId(contentId)
-                .content(post.content())
-                .build();
+            .contentCode(findCodeDetail)
+            .member(findMember)
+            .parentId(post.parentId())
+            .contentId(contentId)
+            .content(post.content())
+            .build();
 
         commentRepository.save(comment);
     }
 
     private ProjectMember getProjectMember(Project findWork, Integer findMember) {
-        return projectMemberRespository.findById(new ProjectMemberId(findWork.getId(), findMember)).orElseThrow(() -> new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE));
+        return projectMemberRespository.findById(new ProjectMemberId(findWork.getId(), findMember))
+            .orElseThrow(() -> new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE));
     }
 
     @Override
     @Transactional
-    public List<CommentDto.Response> getParentComments(Integer memberId, String contentCode, Long contentId) {
+    public List<CommentDto.Response> getParentComments(Integer memberId, String contentCode,
+        Long contentId) {
         //컨텐츠 타입 검증
         CodeDetail findCodeDetail = codeDetailRepository.findByDetailName(contentCode);
         if (contentCode.equals("프로젝트")) {
@@ -97,14 +102,16 @@ public class CommentServiceImpl implements CommentService {
 
             return commentMapper.dtoToResponses(list);
         } else if (contentCode.equals("게시물")) {
-            Board findBoard = boardRepository.findById(contentId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            Board findBoard = boardRepository.findById(contentId)
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
             //프로젝트 참여중인지 검증
             getProjectMember(findBoard.getProject(), memberId);
             List<CommentSimpleDto> list = commentRepository.getComments(findCodeDetail, contentId);
             return commentMapper.dtoToResponses(list);
         } else {
-            Work findWork = workRepository.findById(contentId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            Work findWork = workRepository.findById(contentId)
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
             //프로젝트 참여중인지 검증
             getProjectMember(findWork.getProject(), memberId);
@@ -121,7 +128,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public CommentDto.Response updateComment(Long commentId, Integer memberId, CommentDto.Patch patch) {
+    public CommentDto.Response updateComment(Long commentId, Integer memberId,
+        CommentDto.Patch patch) {
         Member findMember = getFindMember(memberId);
         Comment findComment = getFindComment(commentId);
 
@@ -131,17 +139,17 @@ public class CommentServiceImpl implements CommentService {
         findComment.updateContent(patch.content());
 
         return CommentDto.Response.builder()
-                .id(findComment.getId())
-                .member(MemberDto.Response.builder()
-                        .id(findComment.getMember().getId())
-                        .nickname(findComment.getMember().getNickname())
-                        .imgUrl(findComment.getMember().getImgUrl())
-                        .build()
-                )
-                .isDeleted(findComment.isDeleted())
-                .isParent(findComment.getParentId() != null)
-                .content(findComment.getContent())
-                .build();
+            .id(findComment.getId())
+            .member(MemberDto.Response.builder()
+                .id(findComment.getMember().getId())
+                .nickname(findComment.getMember().getNickname())
+                .imgUrl(findComment.getMember().getImgUrl())
+                .build()
+            )
+            .isDeleted(findComment.isDeleted())
+            .isParent(findComment.getParentId() != null)
+            .content(findComment.getContent())
+            .build();
     }
 
     @Override
@@ -157,10 +165,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private Comment getFindComment(Long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        return commentRepository.findById(commentId)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
     }
 
     private Member getFindMember(Integer memberId) {
-        return memberRepository.findById(memberId).orElseThrow(() -> new CommonException(ExceptionEnum.INVALID_MEMBER_DATA));
+        return memberRepository.findById(memberId)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.INVALID_MEMBER_DATA));
     }
 }

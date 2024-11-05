@@ -11,8 +11,8 @@ import com.backend.prog.domain.project.dao.ProjectTotalRespository;
 import com.backend.prog.domain.project.domain.*;
 import com.backend.prog.domain.project.dto.ApplicationStatusDto;
 import com.backend.prog.domain.project.mapper.ApplicationStatusMapper;
-import com.backend.prog.global.error.CommonException;
-import com.backend.prog.global.error.ExceptionEnum;
+import com.backend.prog.shared.error.CommonException;
+import com.backend.prog.shared.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ApplicationStatusService {
+
     private final ApplicationStatusRepository applicationStatusRepository;
     private final ProjectRespository projectRespository;
     private final MemberRepository memberRepository;
@@ -35,31 +36,38 @@ public class ApplicationStatusService {
 
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
 
-        Project project = projectRespository.findById(projectId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        Project project = projectRespository.findById(projectId)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        CodeDetail codeDetail = codeDetailRepository.findById(jobCode).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        CodeDetail codeDetail = codeDetailRepository.findById(jobCode)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         //프로젝트에 해당 잡코드가 있는지 검사
         ProjectCodeDetaliId projectCodeDetaliId = new ProjectCodeDetaliId(projectId, jobCode);
-        ProjectTotal projectTotal = projectTotalRespository.findById(projectCodeDetaliId).orElseThrow(() -> new CommonException(ExceptionEnum.NOT_HAVE_POSITION));
+        ProjectTotal projectTotal = projectTotalRespository.findById(projectCodeDetaliId)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.NOT_HAVE_POSITION));
 
         // 이미 꽉차있는 포지션이면 에러 발생
-        if(projectTotal.getTotal() <= projectTotal.getCurrent()){
+        if (projectTotal.getTotal() <= projectTotal.getCurrent()) {
             throw new CommonException(ExceptionEnum.POSITION_FULL);
         }
 
         //이미 참여중인 프로젝트인지 검사
-        Optional<ProjectMember> findProjectMember = projectMemberRespository.findById(projectMemberId);
+        Optional<ProjectMember> findProjectMember = projectMemberRespository.findById(
+            projectMemberId);
         //이미 신청한 프로젝트 인지 검사
-        Optional<ApplicationStatus> findApplication = applicationStatusRepository.findById(projectMemberId);
+        Optional<ApplicationStatus> findApplication = applicationStatusRepository.findById(
+            projectMemberId);
 
-        if(findProjectMember.isPresent() || findApplication.isPresent()){
+        if (findProjectMember.isPresent() || findApplication.isPresent()) {
             throw new CommonException(ExceptionEnum.PROJECT_MEMBER);
         }
 
-        ApplicationStatus applicationStatus = new ApplicationStatus(projectMemberId, project, member, codeDetail);
+        ApplicationStatus applicationStatus = new ApplicationStatus(projectMemberId, project,
+            member, codeDetail);
 
         applicationStatusRepository.save(applicationStatus);
     }
@@ -69,31 +77,38 @@ public class ApplicationStatusService {
 
         ProjectMemberId plId = new ProjectMemberId(projectId, memberId);
 
-        ProjectMember findPl = projectMemberRespository.findById(plId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        ProjectMember findPl = projectMemberRespository.findById(plId)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         //요청한 멤버가 팀장인지 검사
-        if(findPl.getRoleCode().getId() != 48){
+        if (findPl.getRoleCode().getId() != 48) {
             throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
         }
 
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, acceptMemberId);
 
-        ApplicationStatus applicationStatus = applicationStatusRepository.findById(projectMemberId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        ApplicationStatus applicationStatus = applicationStatusRepository.findById(projectMemberId)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         //기본 역할 팀원으로 설정
-        CodeDetail codeDetail = codeDetailRepository.findById(49).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        CodeDetail codeDetail = codeDetailRepository.findById(49)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        ProjectMember projectMember = new ProjectMember(projectMemberId, applicationStatus.getProject(), applicationStatus.getMember(), applicationStatus.getJobCode(), codeDetail);
+        ProjectMember projectMember = new ProjectMember(projectMemberId,
+            applicationStatus.getProject(), applicationStatus.getMember(),
+            applicationStatus.getJobCode(), codeDetail);
 
         //projectTotal current +1
-        ProjectCodeDetaliId projectCodeDetaliId = new ProjectCodeDetaliId(projectId, applicationStatus.getJobCode().getId());
+        ProjectCodeDetaliId projectCodeDetaliId = new ProjectCodeDetaliId(projectId,
+            applicationStatus.getJobCode().getId());
 
-        ProjectTotal projectTotal = projectTotalRespository.findById(projectCodeDetaliId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        ProjectTotal projectTotal = projectTotalRespository.findById(projectCodeDetaliId)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         if (projectTotal.getCurrent() < projectTotal.getTotal()) {
             projectTotal.addCurrent();
             projectTotalRespository.save(projectTotal);
-        }else{
+        } else {
             throw new CommonException(ExceptionEnum.POSITION_FULL);
         }
 
@@ -106,12 +121,13 @@ public class ApplicationStatusService {
 
     public void refuseMember(Long projectId, Integer memberId, Integer acceptMemberId) {
 
-        if(memberId != acceptMemberId){
+        if (memberId != acceptMemberId) {
             ProjectMemberId plId = new ProjectMemberId(projectId, memberId);
 
-            ProjectMember findPl = projectMemberRespository.findById(plId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            ProjectMember findPl = projectMemberRespository.findById(plId)
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-            if(findPl.getRoleCode().getId() != 48){
+            if (findPl.getRoleCode().getId() != 48) {
                 throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
             }
         }
@@ -125,14 +141,16 @@ public class ApplicationStatusService {
     public List<ApplicationStatusDto.Response> getApplications(Long projectId, Integer memberId) {
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
 
-        ProjectMember findProjectMember = projectMemberRespository.findById(projectMemberId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        ProjectMember findProjectMember = projectMemberRespository.findById(projectMemberId)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         //팀장인지 확인
-        if(!findProjectMember.getRoleCode().getId().equals(48)){
+        if (!findProjectMember.getRoleCode().getId().equals(48)) {
             throw new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE);
         }
 
-        List<ApplicationStatus> list = applicationStatusRepository.findAllByProjectMember(projectId);
+        List<ApplicationStatus> list = applicationStatusRepository.findAllByProjectMember(
+            projectId);
 
         return applicationStatusMapper.entityToSimpleResponses(list);
     }

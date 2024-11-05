@@ -1,7 +1,7 @@
 package com.backend.prog.domain.project.domain;
 
 import com.backend.prog.domain.member.domain.Member;
-import com.backend.prog.global.common.BaseEntity;
+import com.backend.prog.shared.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -15,6 +15,7 @@ import org.hibernate.annotations.Comment;
 @AllArgsConstructor
 @Table(name = "likes")
 public class Like extends BaseEntity {
+
     @EmbeddedId
     private ProjectMemberId id;
 

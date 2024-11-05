@@ -1,0 +1,13 @@
+server:
+  port: 8080
+
+spring:
+  config:
+    import:
+      - application-datasource.yml
+#      - application-s3.yml
+#      - application-jwt.yml
+#      - application-email.yml
+logging:
+  level:
+    com.backend.prog: DEBUG

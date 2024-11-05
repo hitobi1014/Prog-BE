@@ -3,7 +3,7 @@ package com.backend.prog.domain.work.domain;
 import com.backend.prog.domain.manager.domain.CodeDetail;
 import com.backend.prog.domain.member.domain.Member;
 import com.backend.prog.domain.project.domain.Project;
-import com.backend.prog.global.common.BaseEntity;
+import com.backend.prog.shared.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -17,6 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "work")
 public class Work extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "work_id")
@@ -69,8 +70,9 @@ public class Work extends BaseEntity {
     private LocalDate endDay;
 
     @Builder
-    private Work(Project project, Member producerId, CodeDetail statusCode, CodeDetail typeCode, CodeDetail priorityCode,
-                 Member consumerId, String title, String content, LocalDate startDay, LocalDate endDay) {
+    private Work(Project project, Member producerId, CodeDetail statusCode, CodeDetail typeCode,
+        CodeDetail priorityCode,
+        Member consumerId, String title, String content, LocalDate startDay, LocalDate endDay) {
         this.project = project;
         this.producerId = producerId;
         this.statusCode = statusCode;
@@ -83,16 +85,32 @@ public class Work extends BaseEntity {
         this.endDay = endDay;
     }
 
-    public void updateWork(CodeDetail statusCode,CodeDetail typeCode, CodeDetail priorityCode,
-                           Member consumerId, String title, String content, LocalDate startDay, LocalDate endDay) {
-        if (statusCode != null) {this.statusCode = statusCode;}
-        if (typeCode != null) {this.typeCode = typeCode;}
-        if (priorityCode != null) {this.priorityCode = priorityCode;}
-        if (consumerId != null) {this.consumerId = consumerId;}
-        if (StringUtils.hasText(title)) {this.title = title;}
-        if (StringUtils.hasText(content)) {this.content = content;}
-        if (startDay != null) {this.startDay = startDay;}
-        if (endDay != null) {this.endDay = endDay;}
+    public void updateWork(CodeDetail statusCode, CodeDetail typeCode, CodeDetail priorityCode,
+        Member consumerId, String title, String content, LocalDate startDay, LocalDate endDay) {
+        if (statusCode != null) {
+            this.statusCode = statusCode;
+        }
+        if (typeCode != null) {
+            this.typeCode = typeCode;
+        }
+        if (priorityCode != null) {
+            this.priorityCode = priorityCode;
+        }
+        if (consumerId != null) {
+            this.consumerId = consumerId;
+        }
+        if (StringUtils.hasText(title)) {
+            this.title = title;
+        }
+        if (StringUtils.hasText(content)) {
+            this.content = content;
+        }
+        if (startDay != null) {
+            this.startDay = startDay;
+        }
+        if (endDay != null) {
+            this.endDay = endDay;
+        }
     }
 
     public void updateWorkStatus(CodeDetail statusCode) {
