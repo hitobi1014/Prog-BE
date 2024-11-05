@@ -2,7 +2,7 @@ package com.backend.prog.domain.attendance.domain;
 
 import com.backend.prog.domain.member.domain.Member;
 import com.backend.prog.domain.project.domain.Project;
-import com.backend.prog.global.common.BaseEntity;
+import com.backend.prog.shared.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "attendance_log")
 public class AttendanceLog extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "attendance_log_id")
@@ -37,7 +38,8 @@ public class AttendanceLog extends BaseEntity {
     private LocalDateTime endAt;
 
     @Builder
-    private AttendanceLog(Member member, Project project, LocalDateTime startAt, LocalDateTime endAt) {
+    private AttendanceLog(Member member, Project project, LocalDateTime startAt,
+        LocalDateTime endAt) {
         this.member = member;
         this.project = project;
         this.startAt = startAt;

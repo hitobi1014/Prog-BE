@@ -2,7 +2,7 @@ package com.backend.prog.domain.board.domain;
 
 import com.backend.prog.domain.member.domain.Member;
 import com.backend.prog.domain.project.domain.Project;
-import com.backend.prog.global.common.DeleteEntity;
+import com.backend.prog.shared.common.DeleteEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -17,6 +17,7 @@ import org.hibernate.annotations.DynamicInsert;
 @DynamicInsert
 @Table(name = "board")
 public class Board extends DeleteEntity {
+
     @Id
     @Column(name = "board_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,7 +47,7 @@ public class Board extends DeleteEntity {
 
     @Builder
     private Board(String title, String content, Boolean isNotice,
-                  Project project, Member member) {
+        Project project, Member member) {
         this.title = title;
         this.content = content;
         this.isNotice = isNotice;

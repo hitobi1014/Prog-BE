@@ -15,11 +15,11 @@ import com.backend.prog.domain.project.dao.ProjectRespository;
 import com.backend.prog.domain.project.domain.Project;
 import com.backend.prog.domain.work.dao.WorkRepository;
 import com.backend.prog.domain.work.domain.Work;
-import com.backend.prog.global.error.CommonException;
-import com.backend.prog.global.error.ExceptionEnum;
+import com.backend.prog.shared.error.CommonException;
+import com.backend.prog.shared.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.core.KafkaTemplate;
+//import org.springframework.kafka.annotation.KafkaListener;
+//import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +39,7 @@ public class FeedServiceimpl implements FeedService {
     private final CodeRepository codeRepository;
     private final CodeDetailRepository codeDetailRepository;
 
-    private final KafkaTemplate<String, KafkaFeedDto> kafkaTemplate;
+//    private final KafkaTemplate<String, KafkaFeedDto> kafkaTemplate;
 
     /**
      * 업무, 회고, 게시글에서 넘긴정보로 feedDto 생성
@@ -49,30 +49,31 @@ public class FeedServiceimpl implements FeedService {
      */
     public void makeFeedDto(String codedetailName, Map<String, Object> feedDtoMap) {
         Code code = codeRepository.findByName("Content");
-        CodeDetail contentsCode = codeDetailRepository.findByCodeAndDetailName(code, codedetailName);
+        CodeDetail contentsCode = codeDetailRepository.findByCodeAndDetailName(code,
+            codedetailName);
 
         KafkaFeedDto kafkaDto = KafkaFeedDto.builder()
-                .projectId((Long) feedDtoMap.get("projectId"))
-                .contentsCode(contentsCode.getId())
-                .contentsId((Long) feedDtoMap.get("contentsId"))
-                .memberId((Integer) feedDtoMap.get("memberId"))
-                .build();
+            .projectId((Long) feedDtoMap.get("projectId"))
+            .contentsCode(contentsCode.getId())
+            .contentsId((Long) feedDtoMap.get("contentsId"))
+            .memberId((Integer) feedDtoMap.get("memberId"))
+            .build();
 
         String topic = "feed_created";
-        kafkaTemplate.send(topic, kafkaDto);
+//        kafkaTemplate.send(topic, kafkaDto);
     }
 
-    @KafkaListener(topics = "feed_created", groupId = "group_1")
+    //    @KafkaListener(topics = "feed_created", groupId = "group_1")
     @Transactional
     public void consume(KafkaFeedDto kafkaFeedDto) {
         Project project = projectRespository.findById(kafkaFeedDto.getProjectId())
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         CodeDetail codeDetail = codeDetailRepository.findById(kafkaFeedDto.getContentsCode())
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         Member member = memberRepository.findById(kafkaFeedDto.getMemberId())
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         // 해당 프로젝트에 속한인원에게 전부?, 글 올린 당사자는 피드 생성x
         saveFeed(kafkaFeedDto.getContentsId(), project, codeDetail, member);
@@ -86,15 +87,16 @@ public class FeedServiceimpl implements FeedService {
 
         if (detailName.equals("Work")) {
             sb.append("[업무] ").append(member.getNickname()).append("님이 업무를 요청했습니다.");
-            Work work = workRepository.findById(contentId).orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            Work work = workRepository.findById(contentId)
+                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
             Feed feed = Feed.builder()
-                    .project(project)
-                    .contentCode(codeDetail)
-                    .contentId(contentId)
-                    .memberId(work.getConsumerId().getId())
-                    .content(sb.toString())
-                    .build();
+                .project(project)
+                .contentCode(codeDetail)
+                .contentId(contentId)
+                .memberId(work.getConsumerId().getId())
+                .content(sb.toString())
+                .build();
             feedRepository.save(feed);
 
         } else {
@@ -106,18 +108,18 @@ public class FeedServiceimpl implements FeedService {
 
             // 작성자 제외 같은 프로젝트에 속해있는 member들에게 피드 생성
             projectMemberRespository.findAllByProjectAndNotDeleted(project)
-                    .stream()
-                    .filter(projectMember -> !projectMember.getMember().getId().equals(member.getId()))
-                    .forEach(projectMember -> {
-                        Feed feed = Feed.builder()
-                                .project(project)
-                                .contentCode(codeDetail)
-                                .contentId(contentId)
-                                .memberId(projectMember.getMember().getId())
-                                .content(sb.toString())
-                                .build();
-                        feedRepository.save(feed);
-                    });
+                .stream()
+                .filter(projectMember -> !projectMember.getMember().getId().equals(member.getId()))
+                .forEach(projectMember -> {
+                    Feed feed = Feed.builder()
+                        .project(project)
+                        .contentCode(codeDetail)
+                        .contentId(contentId)
+                        .memberId(projectMember.getMember().getId())
+                        .content(sb.toString())
+                        .build();
+                    feedRepository.save(feed);
+                });
         }
 
 
@@ -128,16 +130,16 @@ public class FeedServiceimpl implements FeedService {
         List<Feed> feedList = feedRepository.findByProjectMember(memberId, projectId);
 
         return feedList.stream()
-                .map(feed -> {
-                    Member member = memberRepository.findById(feed.getMemberId())
-                            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
-                    return FeedListResponse.builder()
-                            .feedId(feed.getId())
-                            .contentsCode(feed.getContentCode().getId())
-                            .contentsId(feed.getContentId())
-                            .memberImgUrl(member.getImgUrl())
-                            .feedContent(feed.getContent())
-                            .build();
-                }).toList();
+            .map(feed -> {
+                Member member = memberRepository.findById(feed.getMemberId())
+                    .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+                return FeedListResponse.builder()
+                    .feedId(feed.getId())
+                    .contentsCode(feed.getContentCode().getId())
+                    .contentsId(feed.getContentId())
+                    .memberImgUrl(member.getImgUrl())
+                    .feedContent(feed.getContent())
+                    .build();
+            }).toList();
     }
 }

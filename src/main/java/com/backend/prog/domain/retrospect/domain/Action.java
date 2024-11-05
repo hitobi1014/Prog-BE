@@ -1,7 +1,7 @@
 package com.backend.prog.domain.retrospect.domain;
 
 import com.backend.prog.domain.project.domain.Project;
-import com.backend.prog.global.common.BaseEntity;
+import com.backend.prog.shared.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -12,6 +12,7 @@ import org.hibernate.annotations.Comment;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "action")
 public class Action extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "action_id")

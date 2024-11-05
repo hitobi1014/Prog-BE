@@ -13,9 +13,9 @@ import com.backend.prog.domain.project.dao.ProjectRespository;
 import com.backend.prog.domain.project.domain.Project;
 import com.backend.prog.domain.project.domain.ProjectMember;
 import com.backend.prog.domain.project.domain.ProjectMemberId;
-import com.backend.prog.global.S3.S3Uploader;
-import com.backend.prog.global.error.CommonException;
-import com.backend.prog.global.error.ExceptionEnum;
+//import com.backend.prog.global.S3.S3Uploader;
+import com.backend.prog.shared.error.CommonException;
+import com.backend.prog.shared.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -38,7 +38,7 @@ public class BoardServiceImpl implements BoardService {
     private final MemberRepository memberRepository;
     private final ProjectMemberRespository projectMemberRespository;
 
-    private final S3Uploader s3Uploader;
+    //    private final S3Uploader s3Uploader;
     private final FeedServiceimpl feedServiceimpl;
 
     private final int PAGE_SIZE = 15;
@@ -48,26 +48,26 @@ public class BoardServiceImpl implements BoardService {
     public void saveBoard(BoardSaveRequest boardInfos, List<MultipartFile> files) {
         // 1. 게시글 저장
         Project project = projectRespository.findById(boardInfos.projectId())
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
         Member member = memberRepository.findById(boardInfos.memberId())
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         Board entity = Board.builder()
-                .title(boardInfos.title())
-                .content(boardInfos.content())
-                .isNotice(boardInfos.isNotice())
-                .project(project)
-                .member(member)
-                .build();
+            .title(boardInfos.title())
+            .content(boardInfos.content())
+            .isNotice(boardInfos.isNotice())
+            .project(project)
+            .member(member)
+            .build();
         Board saveBoard = boardRepository.save(entity);
 
         saveFileImages(files, saveBoard);
 
         // 2. 피드 생성
         Map<String, Object> feedDtoMap = Map.of(
-                "projectId", project.getId(),
-                "contentsId", entity.getId(),
-                "memberId", member.getId()
+            "projectId", project.getId(),
+            "contentsId", entity.getId(),
+            "memberId", member.getId()
         );
         feedServiceimpl.makeFeedDto("Post", feedDtoMap);
 
@@ -83,26 +83,26 @@ public class BoardServiceImpl implements BoardService {
             return;
         }
         boolean isEmpty = files.stream()
-                .anyMatch(MultipartFile::isEmpty);
+            .anyMatch(MultipartFile::isEmpty);
         if (isEmpty) {
             return;
         }
 
         // 2. 파일 저장
         List<String> fileUrls = new ArrayList<>();
-                    files.forEach(file -> {
-                String fileName = s3Uploader.saveUploadFile(file);
-                // 벌크 insert를 위해 url list 저장
-                String filePath = s3Uploader.getFilePath(fileName);
-                fileUrls.add(filePath);
-            });
+        files.forEach(file -> {
+//                String fileName = s3Uploader.saveUploadFile(file);
+//                // 벌크 insert를 위해 url list 저장
+//                String filePath = s3Uploader.getFilePath(fileName);
+//                fileUrls.add(filePath);
+        });
 
         List<BoardImage> imgList = fileUrls.stream()
-                .map(url -> BoardImage.builder()
-                        .board(saveBoard)
-                        .imgUrl(url)
-                        .build())
-                .toList();
+            .map(url -> BoardImage.builder()
+                .board(saveBoard)
+                .imgUrl(url)
+                .build())
+            .toList();
 
         boardImgRepository.saveAll(imgList);
     }
@@ -112,7 +112,7 @@ public class BoardServiceImpl implements BoardService {
     public void modifyBoard(Long boardId, BoardModifyRequest request, List<MultipartFile> files) {
         // 1.게시글 수정
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
         board.update(request.title(), request.content(), request.isNotice());
 
         // 2.게시글 이미지 수정, 이미지가 있으면 삭제후 저장
@@ -128,7 +128,7 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public void removeBoard(Long boardId) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
         board.deleteData();
     }
 
@@ -136,41 +136,45 @@ public class BoardServiceImpl implements BoardService {
     public BoardListReponse getNoticeBoard(Long projectId) {
         Board board = boardRepository.findByNotice(projectId);
         Member member = memberRepository.findById(board.getMember().getId())
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        ProjectMember projectMember = projectMemberRespository.findById(new ProjectMemberId(board.getProject().getId(), member.getId()))
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        ProjectMember projectMember = projectMemberRespository.findById(
+                new ProjectMemberId(board.getProject().getId(), member.getId()))
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        return new BoardListReponse().toDto(member, board, projectMember.getJobCode().getDetailDescription());
+        return new BoardListReponse().toDto(member, board,
+            projectMember.getJobCode().getDetailDescription());
     }
 
     @Override
     public BoardSliceResponse getBoardList(Long projectId, Long lastBoardId) {
         PageRequest pageRequest = PageRequest.of(0, PAGE_SIZE);
         Project project = projectRespository.findById(projectId)
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         Slice<Board> result = boardRepository.searchBoardList(project, pageRequest, lastBoardId);
         List<Board> boardList = result.getContent();
 
         // 작성자 조회
         List<BoardListReponse> reponseList = boardList.stream()
-                .map(board -> {
-                    Member member = board.getMember();
-                    Member writer = memberRepository.findById(member.getId())
-                            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .map(board -> {
+                Member member = board.getMember();
+                Member writer = memberRepository.findById(member.getId())
+                    .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-                    ProjectMember projectMember = projectMemberRespository.findById(new ProjectMemberId(board.getProject().getId(), member.getId()))
-                            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+                ProjectMember projectMember = projectMemberRespository.findById(
+                        new ProjectMemberId(board.getProject().getId(), member.getId()))
+                    .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-                    return new BoardListReponse().toDto(writer, board, projectMember.getJobCode().getDetailDescription());
-                })
-                .toList();
+                return new BoardListReponse().toDto(writer, board,
+                    projectMember.getJobCode().getDetailDescription());
+            })
+            .toList();
 
         return new BoardSliceResponse().toDto(
-                reponseList,
-                result.hasNext(),
-                !boardList.isEmpty() ? boardList.get(boardList.size() - 1).getId() : null
+            reponseList,
+            result.hasNext(),
+            !boardList.isEmpty() ? boardList.get(boardList.size() - 1).getId() : null
         );
     }
 
@@ -179,7 +183,7 @@ public class BoardServiceImpl implements BoardService {
     public BoardDetailResponse getBoardDetail(Long boardId) {
         // 1.게시글
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         // 1.1 게시글 이미지
         List<BoardImage> images = boardImgRepository.findAllByBoard(board);
@@ -187,13 +191,15 @@ public class BoardServiceImpl implements BoardService {
 
         // 2.회원
         Member member = memberRepository.findById(board.getMember().getId())
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
         // 3.포지션
-        ProjectMember projectMember = projectMemberRespository.findById(new ProjectMemberId(board.getProject().getId(), member.getId()))
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+        ProjectMember projectMember = projectMemberRespository.findById(
+                new ProjectMemberId(board.getProject().getId(), member.getId()))
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
 
-        return new BoardDetailResponse().toDto(member, board, images, projectMember.getJobCode().getDetailDescription());
+        return new BoardDetailResponse().toDto(member, board, images,
+            projectMember.getJobCode().getDetailDescription());
     }
 
     @Override
@@ -206,7 +212,7 @@ public class BoardServiceImpl implements BoardService {
         }
         // 공지 체크
         Board result = boardRepository.findById(boardId)
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
         result.changeNotice();
     }
 }

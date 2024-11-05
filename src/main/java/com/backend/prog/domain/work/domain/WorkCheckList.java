@@ -1,6 +1,6 @@
 package com.backend.prog.domain.work.domain;
 
-import com.backend.prog.global.common.BaseEntity;
+import com.backend.prog.shared.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 @Table(name = "work_checklist")
 @DynamicInsert
 public class WorkCheckList extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "checklist_id")

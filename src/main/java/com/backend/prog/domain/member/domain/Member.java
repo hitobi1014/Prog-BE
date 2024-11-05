@@ -1,6 +1,6 @@
 package com.backend.prog.domain.member.domain;
 
-import com.backend.prog.global.common.DeleteEntity;
+import com.backend.prog.shared.common.DeleteEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -14,6 +14,7 @@ import java.util.Set;
 @Table(name = "member")
 @ToString
 public class Member extends DeleteEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")

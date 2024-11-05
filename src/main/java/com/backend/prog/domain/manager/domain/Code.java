@@ -1,6 +1,6 @@
 package com.backend.prog.domain.manager.domain;
 
-import com.backend.prog.global.common.BaseEntity;
+import com.backend.prog.shared.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "code")
 public class Code extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "code_id")
@@ -37,8 +38,14 @@ public class Code extends BaseEntity {
     }
 
     public void update(String name, String description, Boolean isUse) {
-        if (StringUtils.hasText(name)) this.name = name;
-        if (StringUtils.hasText(description)) this.description = description;
-        if (isUse != null) this.isUse = isUse;
+        if (StringUtils.hasText(name)) {
+            this.name = name;
+        }
+        if (StringUtils.hasText(description)) {
+            this.description = description;
+        }
+        if (isUse != null) {
+            this.isUse = isUse;
+        }
     }
 }

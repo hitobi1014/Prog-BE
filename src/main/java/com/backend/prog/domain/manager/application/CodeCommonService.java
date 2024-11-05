@@ -4,8 +4,8 @@ import com.backend.prog.domain.manager.dao.CodeDetailRepository;
 import com.backend.prog.domain.manager.dao.CodeRepository;
 import com.backend.prog.domain.manager.domain.Code;
 import com.backend.prog.domain.manager.domain.CodeDetail;
-import com.backend.prog.global.error.CommonException;
-import com.backend.prog.global.error.ExceptionEnum;
+import com.backend.prog.shared.error.CommonException;
+import com.backend.prog.shared.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +23,7 @@ public class CodeCommonService {
 
     public CodeDetail getCodeDetail(Integer codeDetailId) {
         return codeDetailRepository.findById(codeDetailId)
-                .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
+            .orElseThrow(() -> new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST));
     }
 
     public CodeDetail getCodeDetailByNames(String codeName, String codeDetailName) {

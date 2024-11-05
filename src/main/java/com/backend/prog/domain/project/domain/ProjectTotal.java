@@ -1,7 +1,7 @@
 package com.backend.prog.domain.project.domain;
 
 import com.backend.prog.domain.manager.domain.CodeDetail;
-import com.backend.prog.global.common.BaseEntity;
+import com.backend.prog.shared.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -16,6 +16,7 @@ import org.hibernate.annotations.DynamicInsert;
 @DynamicInsert
 @Table(name = "project_total")
 public class ProjectTotal extends BaseEntity {
+
     @EmbeddedId
     private ProjectCodeDetaliId id;
 
@@ -51,11 +52,11 @@ public class ProjectTotal extends BaseEntity {
         this.current = current;
     }
 
-    public void addCurrent(){
+    public void addCurrent() {
         this.current += 1;
     }
 
-    public void subtractCurrent(){
+    public void subtractCurrent() {
         this.current -= 1;
     }
 

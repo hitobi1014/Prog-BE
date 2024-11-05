@@ -2,7 +2,7 @@ package com.backend.prog.domain.feed.domain;
 
 import com.backend.prog.domain.manager.domain.CodeDetail;
 import com.backend.prog.domain.project.domain.Project;
-import com.backend.prog.global.common.BaseEntity;
+import com.backend.prog.shared.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -13,6 +13,7 @@ import org.hibernate.annotations.Comment;
 @ToString(exclude = {"project", "contentCode"})
 @Table(name = "feed")
 public class Feed extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feed_id")
@@ -39,7 +40,8 @@ public class Feed extends BaseEntity {
     private String content;
 
     @Builder
-    private Feed(Project project, CodeDetail contentCode, Long contentId, Integer memberId, String content) {
+    private Feed(Project project, CodeDetail contentCode, Long contentId, Integer memberId,
+        String content) {
         this.project = project;
         this.contentCode = contentCode;
         this.contentId = contentId;

@@ -1,6 +1,6 @@
 package com.backend.prog.domain.board.domain;
 
-import com.backend.prog.global.common.BaseEntity;
+import com.backend.prog.shared.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -13,6 +13,7 @@ import org.hibernate.annotations.Comment;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "board_image")
 public class BoardImage extends BaseEntity {
+
     @Id
     @Column(name = "board_img_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

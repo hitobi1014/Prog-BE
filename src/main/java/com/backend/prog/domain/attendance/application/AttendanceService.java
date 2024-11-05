@@ -11,8 +11,8 @@ import com.backend.prog.domain.attendance.mapper.AttendanceMapper;
 import com.backend.prog.domain.project.dao.ProjectMemberRespository;
 import com.backend.prog.domain.project.domain.ProjectMember;
 import com.backend.prog.domain.project.domain.ProjectMemberId;
-import com.backend.prog.global.error.CommonException;
-import com.backend.prog.global.error.ExceptionEnum;
+import com.backend.prog.shared.error.CommonException;
+import com.backend.prog.shared.error.ExceptionEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,17 +27,20 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class AttendanceService {
+
     private final AttendanceLogRepository attendanceLogRepository;
     private final AttendanceRepository attendanceRepository;
     private final ProjectMemberRespository projectMemberRespository;
     private final AttendanceMapper attendanceMapper;
     private final AttendanceLogMapper attendanceLogMapper;
 
-    public List<AttendanceDto.Response> getAttendance(Long projectId, Integer memberId, Integer month) {
+    public List<AttendanceDto.Response> getAttendance(Long projectId, Integer memberId,
+        Integer month) {
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
         //프로젝트에 멤버가 포함되있는지 검사
         getProjectMember(projectMemberId);
-        List<Attendance> attendances = attendanceRepository.findAllByMonth(projectId, memberId, month);
+        List<Attendance> attendances = attendanceRepository.findAllByMonth(projectId, memberId,
+            month);
         return attendanceMapper.entityToResponses(attendances);
     }
 
@@ -55,24 +58,24 @@ public class AttendanceService {
 
         //출근 저장
         AttendanceLog attendanceLog = AttendanceLog.builder()
-                .member(projectMember.getMember())
-                .project(projectMember.getProject())
-                .startAt(LocalDateTime.now())
-                .build();
+            .member(projectMember.getMember())
+            .project(projectMember.getProject())
+            .startAt(LocalDateTime.now())
+            .build();
 
         attendanceLogRepository.save(attendanceLog);
 
         return AttendanceLogDto.SimpleResponse.builder()
-                .isWoking(true)
-                .id(attendanceLog.getId())
-                .startAt(LocalDateTime.of(
-                        attendanceLog.getStartAt().getYear(),
-                        attendanceLog.getStartAt().getMonth(),
-                        attendanceLog.getStartAt().getDayOfMonth(),
-                        attendanceLog.getStartAt().getHour(),
-                        attendanceLog.getStartAt().getMinute()
-                ))
-                .build();
+            .isWoking(true)
+            .id(attendanceLog.getId())
+            .startAt(LocalDateTime.of(
+                attendanceLog.getStartAt().getYear(),
+                attendanceLog.getStartAt().getMonth(),
+                attendanceLog.getStartAt().getDayOfMonth(),
+                attendanceLog.getStartAt().getHour(),
+                attendanceLog.getStartAt().getMinute()
+            ))
+            .build();
     }
 
     @Transactional
@@ -104,7 +107,7 @@ public class AttendanceService {
         }
 
         Optional<Attendance> findAttendance = attendanceRepository.
-                findByDay(find.getProject(), find.getMember(), find.getStartAt().toLocalDate());
+            findByDay(find.getProject(), find.getMember(), find.getStartAt().toLocalDate());
 
         //두 날자가 같은 날이면 end 값 추가 후 저장
         if (find.getStartAt().toLocalDate().isEqual(endTime.toLocalDate())) {
@@ -121,14 +124,15 @@ public class AttendanceService {
             }
             //출퇴근 날짜가 같고 근무 기록이없으면 새로운 근무 기록 생성
             else {
-                LocalTime workTimeLocal = LocalTime.of((int) hours % 24, (int) minutes, (int) seconds);
+                LocalTime workTimeLocal = LocalTime.of((int) hours % 24, (int) minutes,
+                    (int) seconds);
 
                 Attendance attendance = Attendance.builder()
-                        .project(find.getProject())
-                        .member(find.getMember())
-                        .workingDay(find.getStartAt().toLocalDate())
-                        .workingTime(workTimeLocal)
-                        .build();
+                    .project(find.getProject())
+                    .member(find.getMember())
+                    .workingDay(find.getStartAt().toLocalDate())
+                    .workingTime(workTimeLocal)
+                    .build();
 
                 attendanceRepository.save(attendance);
             }
@@ -154,25 +158,26 @@ public class AttendanceService {
                 Attendance attendance = findAttendance.get();
                 attendance.plusWorkingTime(hours, minutes, seconds);
             } else {
-                LocalTime workTimeLocal2 = LocalTime.of((int) hours % 24, (int) minutes, (int) seconds);
+                LocalTime workTimeLocal2 = LocalTime.of((int) hours % 24, (int) minutes,
+                    (int) seconds);
 
                 Attendance attendanceStart = Attendance.builder()
-                        .project(find.getProject())
-                        .member(find.getMember())
-                        .workingDay(find.getStartAt().toLocalDate())
-                        .workingTime(workTimeLocal2)
-                        .build();
+                    .project(find.getProject())
+                    .member(find.getMember())
+                    .workingDay(find.getStartAt().toLocalDate())
+                    .workingTime(workTimeLocal2)
+                    .build();
 
                 attendanceRepository.save(attendanceStart);
             }
 
             //퇴근일 기준 새로운 로그 생성 출근시간 00:00:00 퇴근시간 endTime
             AttendanceLog attendanceLog = AttendanceLog.builder()
-                    .member(find.getMember())
-                    .project(find.getProject())
-                    .startAt(endTime.withHour(0).withMinute(0).withSecond(0))
-                    .endAt(endTime)
-                    .build();
+                .member(find.getMember())
+                .project(find.getProject())
+                .startAt(endTime.withHour(0).withMinute(0).withSecond(0))
+                .endAt(endTime)
+                .build();
 
             //퇴근 시간 - 출근시간
             Timestamp start3 = Timestamp.valueOf(find.getStartAt());
@@ -186,26 +191,29 @@ public class AttendanceService {
             workTime3 -= TimeUnit.MINUTES.toMillis(minutes3);
             long seconds3 = TimeUnit.MILLISECONDS.toSeconds(workTime3);
 
-            LocalTime workTimeLocal3 = LocalTime.of((int) hours3 % 24, (int) minutes3, (int) seconds3);
+            LocalTime workTimeLocal3 = LocalTime.of((int) hours3 % 24, (int) minutes3,
+                (int) seconds3);
 
             //퇴근일 근태 생성
             Attendance attendanceEnd = Attendance.builder()
-                    .project(find.getProject())
-                    .member(find.getMember())
-                    .workingDay(find.getStartAt().toLocalDate())
-                    .workingTime(workTimeLocal3)
-                    .build();
+                .project(find.getProject())
+                .member(find.getMember())
+                .workingDay(find.getStartAt().toLocalDate())
+                .workingTime(workTimeLocal3)
+                .build();
 
             attendanceRepository.save(attendanceEnd);
             attendanceLogRepository.save(attendanceLog);
         }
     }
 
-    public List<AttendanceLogDto.Response> getLogs(Long projectId, Integer memberId, Integer year, Integer month, Integer day) {
+    public List<AttendanceLogDto.Response> getLogs(Long projectId, Integer memberId, Integer year,
+        Integer month, Integer day) {
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
         //프로젝트에 멤버가 포함되있는지 검사
         getProjectMember(projectMemberId);
-        List<AttendanceLog> attendanceLogs = attendanceLogRepository.findAllByLocalDate(projectId, memberId, year, month, day);
+        List<AttendanceLog> attendanceLogs = attendanceLogRepository.findAllByLocalDate(projectId,
+            memberId, year, month, day);
 
         return attendanceLogMapper.entityToResponse(attendanceLogs);
     }
@@ -221,20 +229,20 @@ public class AttendanceService {
         AttendanceLogDto.SimpleResponse response;
         if (findLog.isPresent() && findLog.get().getEndAt() == null) {
             response = AttendanceLogDto.SimpleResponse.builder()
-                    .isWoking(true)
-                    .id(findLog.get().getId())
-                    .startAt(LocalDateTime.of(
-                            findLog.get().getStartAt().getYear(),
-                            findLog.get().getStartAt().getMonth(),
-                            findLog.get().getStartAt().getDayOfMonth(),
-                            findLog.get().getStartAt().getHour(),
-                            findLog.get().getStartAt().getMinute()
-                    ))
-                    .build();
+                .isWoking(true)
+                .id(findLog.get().getId())
+                .startAt(LocalDateTime.of(
+                    findLog.get().getStartAt().getYear(),
+                    findLog.get().getStartAt().getMonth(),
+                    findLog.get().getStartAt().getDayOfMonth(),
+                    findLog.get().getStartAt().getHour(),
+                    findLog.get().getStartAt().getMinute()
+                ))
+                .build();
         } else {
             response = AttendanceLogDto.SimpleResponse.builder()
-                    .isWoking(false)
-                    .build();
+                .isWoking(false)
+                .build();
         }
         return response;
     }
@@ -246,6 +254,7 @@ public class AttendanceService {
      * @return ProjectMember 프로젝트 참여 멤버
      */
     private ProjectMember getProjectMember(ProjectMemberId projectMemberId) {
-        return projectMemberRespository.findById(projectMemberId).orElseThrow(() -> new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE));
+        return projectMemberRespository.findById(projectMemberId)
+            .orElseThrow(() -> new CommonException(ExceptionEnum.AUTHORITY_NOT_HAVE));
     }
 }

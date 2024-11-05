@@ -3,8 +3,8 @@ package com.backend.prog.domain.retrospect.api;
 import com.backend.prog.domain.retrospect.application.ActionService;
 import com.backend.prog.domain.retrospect.dto.ActionResponse;
 import com.backend.prog.domain.retrospect.dto.ActionSaveRequest;
-import com.backend.prog.global.error.CommonException;
-import com.backend.prog.global.error.ExceptionEnum;
+import com.backend.prog.shared.error.CommonException;
+import com.backend.prog.shared.error.ExceptionEnum;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +16,7 @@ import java.util.Map;
 @RequestMapping("/api/actions")
 @RequiredArgsConstructor
 public class ActionController {
+
     private final ActionService actionService;
 
     @PostMapping
@@ -24,7 +25,7 @@ public class ActionController {
             throw new CommonException(ExceptionEnum.DATA_DOES_NOT_EXIST);
         }
 
-        if (request.contents().size() > 3){
+        if (request.contents().size() > 3) {
             throw new CommonException(ExceptionEnum.ONLY_REGISTER_THREE);
         }
         actionService.saveAction(request.projectId(), request.contents(), request.week());
