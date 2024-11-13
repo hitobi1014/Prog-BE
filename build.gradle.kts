@@ -43,6 +43,7 @@ dependencies {
     // database
     runtimeOnly("org.postgresql:postgresql")
 
+
     // kotlin querydsl 설정
 //    implementation("com.querydsl:querydsl-jpa:5.0.0")
 ////    implementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
@@ -54,14 +55,17 @@ dependencies {
     implementation("jakarta.persistence:jakarta.persistence-api")
     implementation("jakarta.annotation:jakarta.annotation-api")
 
+
+
     kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     // p6spy 쿼리로그 -> 운영서버에선 지울것
-//    implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0")
+    implementation("com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0")
 
     // test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testRuntimeOnly("com.h2database:h2")
 //    testImplementation("org.springframework.kafka:spring-kafka-test")
 //    testImplementation("org.springframework.security:spring-security-test")
 //    implementation("io.jsonwebtoken:jjwt:0.9.1")
