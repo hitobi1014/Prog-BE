@@ -1,6 +1,6 @@
 package com.prog.member.application.port.input
 
-import com.prog.member.domain.model.aggregates.Member
+import com.prog.member.application.port.input.dto.response.MemberResponse
 
 interface MemberQueryUseCase {
     /**
@@ -10,9 +10,9 @@ interface MemberQueryUseCase {
      *        - byNickname
      *     2. 회원 로그인
      */
-    fun getMemberById(id: Long): Member
-    fun getMemberByNickname(nickname: String): Member?
-    fun getMemberByLoginId(loginId: String): Member?
+    fun getMemberById(id: Long): MemberResponse
+    fun getMemberByNickname(nickname: String): MemberResponse
+    fun getMemberByLoginId(loginId: String): MemberResponse
 
     //    fun signUp(memberDto: MemberDto.Post?)
     //    fun getMyProfile(id: Int?): MemberDto.Response?
