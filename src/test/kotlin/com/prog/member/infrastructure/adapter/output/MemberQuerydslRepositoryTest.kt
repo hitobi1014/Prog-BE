@@ -2,6 +2,7 @@ package com.prog.member.infrastructure.adapter.output
 
 import com.prog.common.CustomRepositoryTest
 import com.prog.member.infrastructure.persistence.entity.MemberEntity
+import com.prog.member.infrastructure.repository.MemberJpaRepository
 import com.prog.member.infrastructure.repository.querydsl.MemberQuerydslRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -11,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 @CustomRepositoryTest
 class MemberQuerydslRepositoryTest @Autowired constructor(
     private val memberQuerydslRepository: MemberQuerydslRepository,
-    private val jpaMemberRepository: JpaMemberRepository,
+    private val memberJpaRepository: MemberJpaRepository,
 ) {
 
     @Test
@@ -27,11 +28,11 @@ class MemberQuerydslRepositoryTest @Autowired constructor(
             name = name,
             nickname = nickname,
         )
-        jpaMemberRepository.save(member)
+        memberJpaRepository.save(member)
 
         //when
-        val findByNickname = memberQuerydslRepository.search(nickname = nickname)
-        val findByLoginId = memberQuerydslRepository.search(loginId = loginId)
+        val findByNickname = memberQuerydslRepository.search(nickname = nickname, loginId = null)
+        val findByLoginId = memberQuerydslRepository.search(loginId = loginId, nickname = null)
         val find = memberQuerydslRepository.search(nickname = nickname, loginId = loginId)
 
         //then
@@ -54,14 +55,14 @@ class MemberQuerydslRepositoryTest @Autowired constructor(
             name = name,
             nickname = nickname,
         )
-        jpaMemberRepository.save(member)
+        memberJpaRepository.save(member)
 
         //when
-        val findMember = memberQuerydslRepository.search(nickname = nickname)
+        val findMember = memberQuerydslRepository.search(nickname = nickname, loginId = null)
         findMember?.deleteData()
-        findMember?.let { jpaMemberRepository.save(it) }
+        findMember?.let { memberJpaRepository.save(it) }
 
-        val find = memberQuerydslRepository.search(nickname = nickname)
+        val find = memberQuerydslRepository.search(nickname = nickname, loginId = null)
 
         //then
         assertThat(find).isNull()
