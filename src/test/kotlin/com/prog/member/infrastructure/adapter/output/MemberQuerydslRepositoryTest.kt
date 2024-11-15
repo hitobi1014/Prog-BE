@@ -2,6 +2,7 @@ package com.prog.member.infrastructure.adapter.output
 
 import com.prog.common.CustomRepositoryTest
 import com.prog.member.infrastructure.persistence.entity.MemberEntity
+import com.prog.member.infrastructure.repository.querydsl.MemberQuerydslRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -29,9 +30,9 @@ class MemberQuerydslRepositoryTest @Autowired constructor(
         jpaMemberRepository.save(member)
 
         //when
-        val findByNickname = memberQuerydslRepository.find(nickname = nickname)
-        val findByLoginId = memberQuerydslRepository.find(loginId = loginId)
-        val find = memberQuerydslRepository.find(nickname = nickname, loginId = loginId)
+        val findByNickname = memberQuerydslRepository.search(nickname = nickname)
+        val findByLoginId = memberQuerydslRepository.search(loginId = loginId)
+        val find = memberQuerydslRepository.search(nickname = nickname, loginId = loginId)
 
         //then
         assertThat(findByNickname?.name).isEqualTo(name)
@@ -56,11 +57,11 @@ class MemberQuerydslRepositoryTest @Autowired constructor(
         jpaMemberRepository.save(member)
 
         //when
-        val findMember = memberQuerydslRepository.find(nickname = nickname)
+        val findMember = memberQuerydslRepository.search(nickname = nickname)
         findMember?.deleteData()
         findMember?.let { jpaMemberRepository.save(it) }
 
-        val find = memberQuerydslRepository.find(nickname = nickname)
+        val find = memberQuerydslRepository.search(nickname = nickname)
 
         //then
         assertThat(find).isNull()
