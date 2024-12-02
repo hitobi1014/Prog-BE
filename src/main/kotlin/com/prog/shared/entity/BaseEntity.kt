@@ -1,4 +1,4 @@
-package com.prog.shared.common
+package com.prog.shared.entity
 
 import jakarta.persistence.Column
 import jakarta.persistence.EntityListeners
