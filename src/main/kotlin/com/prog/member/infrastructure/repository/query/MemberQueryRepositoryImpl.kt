@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository
 class MemberQueryRepositoryImpl(
     private val jpaQueryFactory: JPAQueryFactory,
 ) : MemberQueryRepository {
+
+
     override fun search(nickname: String?, loginId: String?): MemberEntity? {
         return jpaQueryFactory.select(memberEntity)
             .from(memberEntity)
@@ -17,5 +19,12 @@ class MemberQueryRepositoryImpl(
                 nickname?.let { memberEntity.nickname.eq(nickname) },
                 loginId?.let { memberEntity.loginId.eq(loginId) }
             ).fetchOne()
+    }
+
+    override fun findById(id: Long): MemberEntity {
+        return jpaQueryFactory.selectFrom(memberEntity)
+            .where(memberEntity.id.eq(id))
+            .fetchOne()
+            ?: throw NoSuchElementException("Member with id $id not found")
     }
 }
